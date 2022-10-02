@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">neo</string>
+    <string name="lib_name">neo</string>
+    <string name="package_name">matrix.hackers.neo</string>
+</resources>

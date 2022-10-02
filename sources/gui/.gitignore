@@ -1,0 +1,11 @@
+.vs/*
+Debug/*
+Release/*
+TextTool/FontBackup.c
+TextTool/text
+*.exe
+ogltest
+rawdraw
+rawdraw_ogl
+examples/fontsize
+examples/fontsize_ogl
