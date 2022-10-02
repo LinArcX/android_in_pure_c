@@ -1,4 +1,4 @@
-all : makecapk.apk
+all : _neo.apk
 
 .PHONY : push run
 
@@ -75,10 +75,10 @@ CC_x86_64=$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/bin/x86_64-linux-android$(A
 AAPT:=$(BUILD_TOOLS)/aapt
 
 # Which binaries to build? Just comment/uncomment these lines:
-TARGETS += build/makecapk/lib/arm64-v8a/lib$(APPNAME).so
-TARGETS += build/makecapk/lib/armeabi-v7a/lib$(APPNAME).so
-#TARGETS += build/makecapk/lib/x86/lib$(APPNAME).so
-#TARGETS += build/makecapk/lib/x86_64/lib$(APPNAME).so
+TARGETS += build/neo/lib/arm64-v8a/lib$(APPNAME).so
+TARGETS += build/neo/lib/armeabi-v7a/lib$(APPNAME).so
+#TARGETS += build/neo/lib/x86/lib$(APPNAME).so
+#TARGETS += build/neo/lib/x86_64/lib$(APPNAME).so
 
 CFLAGS_ARM64:=-m64
 CFLAGS_ARM32:=-mfloat-abi=softfp -m32
@@ -95,53 +95,51 @@ $(KEYSTOREFILE) :
 	keytool -genkey -v -keystore $(KEYSTOREFILE) -alias $(ALIASNAME) -keyalg RSA -keysize 2048 -validity 10000 -storepass $(STOREPASS) -keypass $(STOREPASS) -dname $(DNAME)
 
 folders:
-	mkdir -p build/makecapk/lib/arm64-v8a
-	mkdir -p build/makecapk/lib/armeabi-v7a
-	mkdir -p build/makecapk/lib/x86
-	mkdir -p build/makecapk/lib/x86_64
+	mkdir -p build/neo/lib/arm64-v8a
+	mkdir -p build/neo/lib/armeabi-v7a
+	mkdir -p build/neo/lib/x86
+	mkdir -p build/neo/lib/x86_64
 
-build/makecapk/lib/arm64-v8a/lib$(APPNAME).so : $(ANDROIDSRCS)
-	mkdir -p build/makecapk/lib/arm64-v8a
+build/neo/lib/arm64-v8a/lib$(APPNAME).so : $(ANDROIDSRCS)
+	mkdir -p build/neo/lib/arm64-v8a
 	$(CC_ARM64) $(CFLAGS) $(CFLAGS_ARM64) -o $@ $^ -L$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/lib/aarch64-linux-android/$(ANDROIDVERSION) $(LDFLAGS)
 
-build/makecapk/lib/armeabi-v7a/lib$(APPNAME).so : $(ANDROIDSRCS)
-	mkdir -p build/makecapk/lib/armeabi-v7a
+build/neo/lib/armeabi-v7a/lib$(APPNAME).so : $(ANDROIDSRCS)
+	mkdir -p build/neo/lib/armeabi-v7a
 	$(CC_ARM32) $(CFLAGS) $(CFLAGS_ARM32) -o $@ $^ -L$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/lib/arm-linux-androideabi/$(ANDROIDVERSION) $(LDFLAGS)
 
-build/makecapk/lib/x86/lib$(APPNAME).so : $(ANDROIDSRCS)
-	mkdir -p build/makecapk/lib/x86
+build/neo/lib/x86/lib$(APPNAME).so : $(ANDROIDSRCS)
+	mkdir -p build/neo/lib/x86
 	$(CC_x86) $(CFLAGS) $(CFLAGS_x86) -o $@ $^ -L$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/lib/i686-linux-android/$(ANDROIDVERSION) $(LDFLAGS)
 
-build/makecapk/lib/x86_64/lib$(APPNAME).so : $(ANDROIDSRCS)
-	mkdir -p build/makecapk/lib/x86_64
+build/neo/lib/x86_64/lib$(APPNAME).so : $(ANDROIDSRCS)
+	mkdir -p build/neo/lib/x86_64
 	$(CC_x86) $(CFLAGS) $(CFLAGS_x86_64) -o $@ $^ -L$(NDK)/toolchains/llvm/prebuilt/$(OS_NAME)/sysroot/usr/lib/x86_64-linux-android/$(ANDROIDVERSION) $(LDFLAGS)
 
 #We're really cutting corners.  You should probably use resource files.. Replace android:label="@string/app_name" and add a resource file.
 #Then do this -S Sources/res on the aapt line.
-#For icon support, add -S makecapk/res to the aapt line.  also,  android:icon="@mipmap/icon" to your application line in the manifest.
+#For icon support, add -S neo/res to the aapt line.  also,  android:icon="@mipmap/icon" to your application line in the manifest.
 #If you want to strip out about 800 bytes of data you can remove the icon and strings.
 
 #Notes for the past:  These lines used to work, but don't seem to anymore.  Switched to newer jarsigner.
-#(zipalign -c -v 8 makecapk.apk)||true #This seems to not work well.
-#jarsigner -verify -verbose -certs makecapk.apk
+#(zipalign -c -v 8 _neo.apk)||true #This seems to not work well.
+#jarsigner -verify -verbose -certs _neo.apk
 
-
-
-makecapk.apk : $(TARGETS) $(EXTRA_ASSETS_TRIGGER) AndroidManifest.xml
-	mkdir -p build/makecapk/assets
-	cp -r android/assets/* build/makecapk/assets
+_neo.apk : $(TARGETS) $(EXTRA_ASSETS_TRIGGER) AndroidManifest.xml
+	mkdir -p build/neo/assets
+	cp -r android/assets/* build/neo/assets
 	rm -rf temp.apk
-	$(AAPT) package -f -F temp.apk -I $(ANDROIDSDK)/platforms/android-$(ANDROIDVERSION)/android.jar -M build/AndroidManifest.xml -S android/res -A build/makecapk/assets -v --target-sdk-version $(ANDROIDTARGET)
-	unzip -o temp.apk -d build/makecapk
-	rm -rf build/makecapk.apk
-	cd build/makecapk && zip -D9r ../makecapk.apk . && zip -D0r ../makecapk.apk ./resources.arsc ./build/AndroidManifest.xml
-	jarsigner -sigalg SHA1withRSA -digestalg SHA1 -verbose -keystore $(KEYSTOREFILE) -storepass $(STOREPASS) build/makecapk.apk $(ALIASNAME)
+	$(AAPT) package -f -F temp.apk -I $(ANDROIDSDK)/platforms/android-$(ANDROIDVERSION)/android.jar -M build/AndroidManifest.xml -S android/res -A build/neo/assets -v --target-sdk-version $(ANDROIDTARGET)
+	unzip -o temp.apk -d build/neo
+	rm -rf build/_neo.apk
+	cd build/neo && zip -D9r ../_neo.apk . && zip -D0r ../_neo.apk ./resources.arsc ./build/AndroidManifest.xml
+	jarsigner -sigalg SHA1withRSA -digestalg SHA1 -verbose -keystore $(KEYSTOREFILE) -storepass $(STOREPASS) build/_neo.apk $(ALIASNAME)
 	rm -rf $(APKFILE)
-	$(BUILD_TOOLS)/zipalign -v 4 build/makecapk.apk $(APKFILE)
+	$(BUILD_TOOLS)/zipalign -v 4 build/_neo.apk $(APKFILE)
 	#Using the apksigner in this way is only required on Android 30+
 	$(BUILD_TOOLS)/apksigner sign --key-pass pass:$(STOREPASS) --ks-pass pass:$(STOREPASS) --ks $(KEYSTOREFILE) $(APKFILE)
 	rm -rf temp.apk
-	rm -rf build/makecapk.apk
+	rm -rf build/_neo.apk
 	@ls -l $(APKFILE)
 
 manifest: AndroidManifest.xml
@@ -159,7 +157,7 @@ AndroidManifest.xml :
 uninstall :
 	($(ADB) uninstall $(PACKAGENAME))||true
 
-push : makecapk.apk
+push : _neo.apk
 	@echo "Installing" $(PACKAGENAME)
 	$(ADB) install -r $(APKFILE)
 
@@ -168,4 +166,4 @@ run : push
 	$(ADB) shell am start -n $(PACKAGENAME)/$(ACTIVITYNAME)
 
 clean :
-	rm -rf temp.apk build/makecapk.apk build/makecapk $(APKFILE)
+	rm -rf temp.apk build/_neo.apk build/neo $(APKFILE)
