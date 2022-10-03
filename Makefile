@@ -153,17 +153,16 @@ AndroidManifest.xml :
 		LABEL=$(LABEL) envsubst '$$ANDROIDTARGET $$ANDROIDVERSION $$APPNAME $$PACKAGENAME $$LABEL' \
 		< android/AndroidManifest.xml.template > build/AndroidManifest.xml
 
-
-uninstall :
-	($(ADB) uninstall $(PACKAGENAME))||true
+run : push
+	$(eval ACTIVITYNAME:=$(shell $(AAPT) dump badging $(APKFILE) | grep "launchable-activity" | cut -f 2 -d"'"))
+	$(ADB) shell am start -n $(PACKAGENAME)/$(ACTIVITYNAME)
 
 push : _neo.apk
 	@echo "Installing" $(PACKAGENAME)
 	$(ADB) install -r $(APKFILE)
 
-run : push
-	$(eval ACTIVITYNAME:=$(shell $(AAPT) dump badging $(APKFILE) | grep "launchable-activity" | cut -f 2 -d"'"))
-	$(ADB) shell am start -n $(PACKAGENAME)/$(ACTIVITYNAME)
+uninstall :
+	($(ADB) uninstall $(PACKAGENAME))||true
 
 clean :
 	rm -rf temp.apk build/_neo.apk build/neo $(APKFILE)

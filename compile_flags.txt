@@ -1,0 +1,5 @@
+-lGLEW
+-lGLU
+-lGL
+-I/usr/include/SDL2/
+`sdl2-config --cflags --libs`

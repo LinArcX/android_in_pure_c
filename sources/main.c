@@ -1,14 +1,11 @@
-//Copyright (c) 2011-2020 <>< Charles Lohr - Under the MIT/x11 or NewBSD License you choose.
-// NO WARRANTY! NO GUARANTEE OF SUPPORT! USE AT YOUR OWN RISK
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include "gui/os_generic.h"
 #include <GLES3/gl3.h>
-#include <asset_manager.h>
-#include <asset_manager_jni.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include "glue/android_native_app_glue.h"
 #include <android/sensor.h>
 #include "gui/CNFGAndroid.h"
@@ -297,39 +294,39 @@ int main()
 
 		CNFGPenX = 10; CNFGPenY = 10;
 
-		// Text
-		pos = 0;
-		CNFGColor( 0xffffffff );
-		for( i = 0; i < 1; i++ )
-		{
-			int c;
-			char tw[2] = { 0, 0 };
-			for( c = 0; c < 256; c++ )
-			{
-				tw[0] = c;
+		//// Text
+		//pos = 0;
+		//CNFGColor( 0xffffffff );
+		//for( i = 0; i < 1; i++ )
+		//{
+		//	int c;
+		//	char tw[2] = { 0, 0 };
+		//	for( c = 0; c < 256; c++ )
+		//	{
+		//		tw[0] = c;
 
-				CNFGPenX = ( c % 16 ) * 20+606;
-				CNFGPenY = ( c / 16 ) * 20+5;
-				CNFGDrawText( tw, 4 );
-			}
-		}
+		//		CNFGPenX = ( c % 16 ) * 20+606;
+		//		CNFGPenY = ( c / 16 ) * 20+5;
+		//		CNFGDrawText( tw, 4 );
+		//	}
+		//}
 
-		// Green triangles
-		CNFGPenX = 0;
-		CNFGPenY = 0;
+		//// Green triangles
+		//CNFGPenX = 0;
+		//CNFGPenY = 0;
 
-		for( i = 0; i < 400; i++ )
-		{
-			RDPoint pp[3];
-			CNFGColor( 0x00FF00FF );
-			pp[0].x = (short)(50*sin((float)(i+iframeno)*.01) + (i%20)*30);
-			pp[0].y = (short)(50*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
-			pp[1].x = (short)(20*sin((float)(i+iframeno)*.01) + (i%20)*30);
-			pp[1].y = (short)(50*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
-			pp[2].x = (short)(10*sin((float)(i+iframeno)*.01) + (i%20)*30);
-			pp[2].y = (short)(30*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
-			CNFGTackPoly( pp, 3 );
-		}
+		//for( i = 0; i < 400; i++ )
+		//{
+		//	RDPoint pp[3];
+		//	CNFGColor( 0x00FF00FF );
+		//	pp[0].x = (short)(50*sin((float)(i+iframeno)*.01) + (i%20)*30);
+		//	pp[0].y = (short)(50*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
+		//	pp[1].x = (short)(20*sin((float)(i+iframeno)*.01) + (i%20)*30);
+		//	pp[1].y = (short)(50*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
+		//	pp[2].x = (short)(10*sin((float)(i+iframeno)*.01) + (i%20)*30);
+		//	pp[2].y = (short)(30*cos((float)(i+iframeno)*.01) + (i/20)*20)+700;
+		//	CNFGTackPoly( pp, 3 );
+		//}
 
 		int x, y;
 		for( y = 0; y < 256; y++ )

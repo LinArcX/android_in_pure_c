@@ -277,7 +277,7 @@ static struct android_app* android_app_create(ANativeActivity* activity,
     pthread_cond_init(&android_app->cond, NULL);
 
 
-    pthread_attr_t attr; 
+    pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
