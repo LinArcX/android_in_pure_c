@@ -142,27 +142,27 @@ _neo.apk : $(TARGETS) $(EXTRA_ASSETS_TRIGGER) AndroidManifest.xml
 	rm -rf build/_neo.apk
 	@ls -l $(APKFILE)
 
-manifest: AndroidManifest.xml
+#manifest: AndroidManifest.xml
+#
+#AndroidManifest.xml :
+#	rm -rf build/AndroidManifest.xml
+#	PACKAGENAME=$(PACKAGENAME) \
+#		ANDROIDVERSION=$(ANDROIDVERSION) \
+#		ANDROIDTARGET=$(ANDROIDTARGET) \
+#		APPNAME=$(APPNAME) \
+#		LABEL=$(LABEL) envsubst '$$ANDROIDTARGET $$ANDROIDVERSION $$APPNAME $$PACKAGENAME $$LABEL' \
+#		< android/AndroidManifest.xml.template > build/AndroidManifest.xml
 
-AndroidManifest.xml :
-	rm -rf build/AndroidManifest.xml
-	PACKAGENAME=$(PACKAGENAME) \
-		ANDROIDVERSION=$(ANDROIDVERSION) \
-		ANDROIDTARGET=$(ANDROIDTARGET) \
-		APPNAME=$(APPNAME) \
-		LABEL=$(LABEL) envsubst '$$ANDROIDTARGET $$ANDROIDVERSION $$APPNAME $$PACKAGENAME $$LABEL' \
-		< android/AndroidManifest.xml.template > build/AndroidManifest.xml
-
-run : push
-	$(eval ACTIVITYNAME:=$(shell $(AAPT) dump badging $(APKFILE) | grep "launchable-activity" | cut -f 2 -d"'"))
-	$(ADB) shell am start -n $(PACKAGENAME)/$(ACTIVITYNAME)
-
-push : _neo.apk
-	@echo "Installing" $(PACKAGENAME)
-	$(ADB) install -r $(APKFILE)
-
-uninstall :
-	($(ADB) uninstall $(PACKAGENAME))||true
-
-clean :
-	rm -rf temp.apk build/_neo.apk build/neo $(APKFILE)
+#run : push
+#	$(eval ACTIVITYNAME:=$(shell $(AAPT) dump badging $(APKFILE) | grep "launchable-activity" | cut -f 2 -d"'"))
+#	$(ADB) shell am start -n $(PACKAGENAME)/$(ACTIVITYNAME)
+#
+#push : _neo.apk
+#	@echo "Installing" $(PACKAGENAME)
+#	$(ADB) install -r $(APKFILE)
+#
+#uninstall :
+#	($(ADB) uninstall $(PACKAGENAME))||true
+#
+#clean :
+#	rm -rf temp.apk build/_neo.apk build/neo $(APKFILE)
