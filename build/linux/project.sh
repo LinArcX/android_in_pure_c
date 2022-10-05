@@ -46,9 +46,9 @@ MIN_SDK_VERSION="23"
 TARGET_SDK_VERSION="23"
 TARGET_SDK_VERSION="23"
 
-AAPT="$ANDROID_BUILD_TOOLS/23.0.1/aapt"
-ZIP_ALIGN="$ANDROID_BUILD_TOOLS/23.0.1/zipalign"
-APK_SIGNER="$ANDROID_BUILD_TOOLS/23.0.1/apksigner"
+AAPT="$ANDROID_BUILD_TOOLS/29.0.2/aapt"
+ZIP_ALIGN="$ANDROID_BUILD_TOOLS/29.0.2/zipalign"
+APK_SIGNER="$ANDROID_BUILD_TOOLS/29.0.2/apksigner"
 
 SOURCES="./sources/main.c"
 RAWDRAWANDROID="."
@@ -81,7 +81,7 @@ CFLAGS_x86_64="-march=x86-64 -mtune=intel -m64 -msse4.2 -mpopcnt "
 
 STOREPASS="password"
 ALIASNAME="standkey"
-KEYSTOREFILE="build/linux/output/neo-release-key.keystore"
+KEYSTOREFILE="neo-release-key.keystore"
 DNAME="CN=example.com, OU=ID, O=Example, L=Doe, S=John, C=GB"
 
 neo_generate_keystore()
@@ -114,8 +114,8 @@ neo_generate_shared_files()
 
   $CC_ARM64 $CFLAGS $CFLAGS_ARM64 -o build/linux/output/lib/arm64-v8a/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/aarch64-linux-android/$TARGET_SDK_VERSION $LDFLAGS
 	$CC_ARM32 $CFLAGS $CFLAGS_ARM32 -o build/linux/output/lib/armeabi-v7a/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/arm-linux-androideabi/$TARGET_SDK_VERSION $LDFLAGS
-	#$CC_x86 $CFLAGS $CFLAGS_x86 -o build/linux/output/lib/x86/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/i686-linux-android/$TARGET_SDK_VERSION $LDFLAGS
-	#$CC_x86 $CFLAGS $CFLAGS_x86_64 -o build/linux/output/lib/x86_64/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/x86_64-linux-android/$TARGET_SDK_VERSION $LDFLAGS
+	$CC_x86 $CFLAGS $CFLAGS_x86 -o build/linux/output/lib/x86/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/i686-linux-android/$TARGET_SDK_VERSION $LDFLAGS
+	$CC_x86 $CFLAGS $CFLAGS_x86_64 -o build/linux/output/lib/x86_64/lib$APP_NAME.so $ANDROID_SOURCES -L$ANDROID_NDK/toolchains/llvm/prebuilt/$OS_NAME/sysroot/usr/lib/x86_64-linux-android/$TARGET_SDK_VERSION $LDFLAGS
 
   printf "\n\n"
 }
@@ -140,12 +140,12 @@ neo_aapt()
 	printf "${Blue}>> Running aapt ${NC}\n"
   printf "${Blue}------------------------${NC}\n"
 
-  rm -rf build/linux/output/aapt.apk
+  rm -rf aapt.apk
 
 	mkdir -p build/linux/output/assets
 	cp -r assets/android/assets/* build/linux/output/assets
-	$AAPT package -f -F build/linux/output/aapt.apk -I $ANDROID_SDK/platforms/android-$TARGET_SDK_VERSION/android.jar -M build/linux/output/AndroidManifest.xml -S assets/android/res -A build/linux/output/assets -v --target-sdk-version $TARGET_SDK_VERSION
-	unzip -o build/linux/output/aapt.apk -d build/linux/output
+	$AAPT package -f -F aapt.apk -I $ANDROID_SDK/platforms/android-$TARGET_SDK_VERSION/android.jar -M build/linux/output/AndroidManifest.xml -S assets/android/res -A build/linux/output/assets -v --target-sdk-version $TARGET_SDK_VERSION
+	unzip -o aapt.apk -d build/linux/output
 
   printf "\n\n"
 }
@@ -155,8 +155,10 @@ neo_create_zipped_apk()
 	printf "${LightRed}>> Creating zipped.apk ${NC}\n"
   printf "${LightRed}------------------------${NC}\n"
 
-  rm -rf build/linux/output/zipped.apk
-	zip -D9r build/linux/output/zipped.apk build/linux/output && zip -D0r build/linux/output/zipped.apk build/linux/output/resources.arsc build/linux/output/AndroidManifest.xml
+  rm -rf zipped.apk
+  #rm -rf build/linux/output/aapt.apk
+
+  cd build/linux/output &&zip -D9r ../../../zipped.apk .  && zip -D0r ../../../zipped.apk ./resources.arsc ./AndroidManifest.xml
 
   printf "\n\n"
 }
@@ -166,7 +168,7 @@ neo_jar_sign()
 	printf "${Green}>> Running JarSigner ${NC}\n"
   printf "${Green}------------------------${NC}\n"
 
-	jarsigner -sigalg SHA1withRSA -digestalg SHA1 -verbose -keystore $KEYSTOREFILE -storepass $STOREPASS build/linux/output/zipped.apk $ALIASNAME
+	jarsigner -sigalg SHA1withRSA -digestalg SHA1 -verbose -keystore "../../../neo-release-key.keystore" -storepass $STOREPASS ../../../zipped.apk $ALIASNAME
 
   printf "\n\n"
 }
@@ -176,7 +178,7 @@ neo_zip_align()
 	printf "${Yellow}>> Running ZipAlign ${NC}\n"
   printf "${Yellow}------------------------${NC}\n"
 
-	$ZIP_ALIGN -v 4 build/linux/output/zipped.apk $APK_FILE
+	$ZIP_ALIGN -v 4 ../../../zipped.apk "neo.apk"
 
   printf "\n\n"
 }
@@ -187,7 +189,7 @@ neo_apk_signer_30()
   printf "${Green}------------------------${NC}\n"
 
 	#Using the apksigner in this way is only required on Android 30+
-	$APK_SIGNER sign --key-pass pass:$STOREPASS --ks-pass pass:$STOREPASS --ks $KEYSTOREFILE $APK_FILE
+	$APK_SIGNER sign --key-pass pass:$STOREPASS --ks-pass pass:$STOREPASS --ks "../../../neo-release-key.keystore" "neo.apk"
 
   printf "\n\n"
 }
@@ -197,10 +199,14 @@ neo_remove_temp_apks()
 	printf "${Cyan}>> Removing temp apks ${NC}\n"
   printf "${Cyan}------------------------${NC}\n"
 
-	##rm -rf $APK_FILE
-	#rm -rf aapt.apk
-	#rm -rf _neo.apk
-	##@ls -l $(APKFILE)
+  rm -rf assets/
+  rm -rf lib/
+  rm -rf res/
+  rm -rf resources.arsc
+  rm -rf AndroidManifest.xml
+  rm -rf ../../../aapt.apk
+  rm -rf ../../../zipped.apk
+  rm -rf ../../../neo-release-key.keystore
 
   printf "\n\n"
 }
@@ -287,7 +293,7 @@ neo_uninstall()
 neo_clean()
 {
   echo ">>> Cleaning build directory"
-	rm -rf build/linux/output/aapt.apk build/_neo.apk build/neo $APK_FILE
+	rm -rf aapt.apk build/_neo.apk build/neo $APK_FILE
 }
 
 #SDK_LOCATION=$ANDROID_HOME
