@@ -1,5 +1,6 @@
--lGLEW
--lGLU
--lGL
--I/usr/include/SDL2/
-`sdl2-config --cflags --libs`
+-lm
+-lGLESv3
+-lEGL
+-landroid
+-llog
+-I$ANDROID_NDK/sysroot/usr/include -I$ANDROID_NDK/sysroot/usr/include/android  -I./sources/gui -I./source/devices -I./sources/glue
